@@ -3,7 +3,7 @@
 
 # provider-rediscloud-api
 
-Kubeform CRDs for [Terraform Rediscloud Provider](https://github.com/rediscloud/terraform-provider-rediscloud)
+Kubeform CRDs for [Terraform Redis Enterprise Cloud Provider](https://github.com/RedisLabs/terraform-provider-rediscloud)
 
 ## Installation
 
