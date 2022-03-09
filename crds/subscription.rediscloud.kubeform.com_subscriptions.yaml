@@ -1,0 +1,670 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  creationTimestamp: null
+  labels:
+    app.kubernetes.io/name: rediscloud.kubeform.com
+    app.kubernetes.io/part-of: kubeform.com
+  name: subscriptions.subscription.rediscloud.kubeform.com
+spec:
+  group: subscription.rediscloud.kubeform.com
+  names:
+    kind: Subscription
+    listKind: SubscriptionList
+    plural: subscriptions
+    singular: subscription
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              backendRef:
+                description: LocalObjectReference contains enough information to let
+                  you locate the referenced object inside the same namespace.
+                properties:
+                  name:
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      TODO: Add other useful fields. apiVersion, kind, uid?'
+                    type: string
+                type: object
+              providerRef:
+                description: LocalObjectReference contains enough information to let
+                  you locate the referenced object inside the same namespace.
+                properties:
+                  name:
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      TODO: Add other useful fields. apiVersion, kind, uid?'
+                    type: string
+                type: object
+              resource:
+                properties:
+                  allowlist:
+                    description: An allowlist object
+                    properties:
+                      cidrs:
+                        description: Set of CIDR ranges that are allowed to access
+                          the databases associated with this subscription
+                        items:
+                          type: string
+                        type: array
+                      securityGroupIDS:
+                        description: Set of security groups that are allowed to access
+                          the databases associated with this subscription
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  cloudProvider:
+                    description: A cloud provider object
+                    properties:
+                      cloudAccountID:
+                        description: 'Cloud account identifier. Default: Redis Labs
+                          internal cloud account (using Cloud Account Id = 1 implies
+                          using Redis Labs internal cloud account). Note that a GCP
+                          subscription can be created only with Redis Labs internal
+                          cloud account'
+                        type: string
+                      provider:
+                        description: The cloud provider to use with the subscription,
+                          (either `AWS` or `GCP`)
+                        type: string
+                      region:
+                        description: Cloud networking details, per region (single
+                          region or multiple regions for Active-Active cluster only)
+                        items:
+                          properties:
+                            multipleAvailabilityZones:
+                              description: Support deployment on multiple availability
+                                zones within the selected region
+                              type: boolean
+                            networkingDeploymentCIDR:
+                              description: Deployment CIDR mask
+                              type: string
+                            networkingVpcID:
+                              description: Either an existing VPC Id (already exists
+                                in the specific region) or create a new VPC (if no
+                                VPC is specified)
+                              type: string
+                            networks:
+                              description: List of networks used
+                              items:
+                                properties:
+                                  networkingDeploymentCIDR:
+                                    description: Deployment CIDR mask
+                                    type: string
+                                  networkingSubnetID:
+                                    description: The subnet that the subscription
+                                      deploys into
+                                    type: string
+                                  networkingVpcID:
+                                    description: Either an existing VPC Id (already
+                                      exists in the specific region) or create a new
+                                      VPC (if no VPC is specified)
+                                    type: string
+                                type: object
+                              type: array
+                            preferredAvailabilityZones:
+                              description: List of availability zones used
+                              items:
+                                type: string
+                              type: array
+                            region:
+                              description: Deployment region as defined by cloud provider
+                              type: string
+                          required:
+                          - networkingDeploymentCIDR
+                          - preferredAvailabilityZones
+                          - region
+                          type: object
+                        minItems: 1
+                        type: array
+                    required:
+                    - region
+                    type: object
+                  database:
+                    description: A database object
+                    items:
+                      properties:
+                        alert:
+                          description: Set of alerts to enable on the database
+                          items:
+                            properties:
+                              name:
+                                description: Alert name
+                                type: string
+                              value:
+                                description: Alert value
+                                format: int64
+                                type: integer
+                            required:
+                            - name
+                            - value
+                            type: object
+                          type: array
+                        averageItemSizeInBytes:
+                          description: Relevant only to ram-and-flash clusters. Estimated
+                            average size (measured in bytes) of the items stored in
+                            the database
+                          format: int64
+                          type: integer
+                        clientSslCertificate:
+                          description: SSL certificate to authenticate user connections
+                          type: string
+                        dataPersistence:
+                          description: Rate of database data persistence (in persistent
+                            storage)
+                          type: string
+                        dbID:
+                          description: Identifier of the database created
+                          format: int64
+                          type: integer
+                        enableTls:
+                          description: Use TLS for authentication
+                          type: boolean
+                        externalEndpointForOssClusterAPI:
+                          description: Should use the external endpoint for open-source
+                            (OSS) Cluster API
+                          type: boolean
+                        hashingPolicy:
+                          description: List of regular expression rules to shard the
+                            database by. See the documentation on clustering for more
+                            information on the hashing policy - https://docs.redislabs.com/latest/rc/concepts/clustering/
+                          items:
+                            type: string
+                          type: array
+                        memoryLimitInGb:
+                          description: Maximum memory usage for this specific database
+                          format: double
+                          type: number
+                        module:
+                          description: A module object
+                          properties:
+                            name:
+                              description: Name of the module to enable
+                              type: string
+                          required:
+                          - name
+                          type: object
+                        name:
+                          description: A meaningful name to identify the database
+                          type: string
+                        periodicBackupPath:
+                          description: Path that will be used to store database backup
+                            files
+                          type: string
+                        privateEndpoint:
+                          description: Private endpoint to access the database
+                          type: string
+                        protocol:
+                          description: The protocol that will be used to access the
+                            database, (either ‘redis’ or 'memcached’)
+                          type: string
+                        publicEndpoint:
+                          description: Public endpoint to access the database
+                          type: string
+                        replicaOf:
+                          description: Set of Redis database URIs, in the format `redis://user:password@host:port`,
+                            that this database will be a replica of. If the URI provided
+                            is Redis Labs Cloud instance, only host and port should
+                            be provided
+                          items:
+                            type: string
+                          type: array
+                        replication:
+                          description: Databases replication
+                          type: boolean
+                        sourceIPS:
+                          description: Set of CIDR addresses to allow access to the
+                            database
+                          items:
+                            type: string
+                          minItems: 1
+                          type: array
+                        supportOssClusterAPI:
+                          description: Support Redis open-source (OSS) Cluster API
+                          type: boolean
+                        throughputMeasurementBy:
+                          description: Throughput measurement method, (either ‘number-of-shards’
+                            or ‘operations-per-second’)
+                          type: string
+                        throughputMeasurementValue:
+                          description: Throughput value (as applies to selected measurement
+                            method)
+                          format: int64
+                          type: integer
+                      required:
+                      - memoryLimitInGb
+                      - name
+                      - protocol
+                      - throughputMeasurementBy
+                      - throughputMeasurementValue
+                      type: object
+                    minItems: 1
+                    type: array
+                  id:
+                    type: string
+                  memoryStorage:
+                    description: 'Memory storage preference: either ‘ram’ or a combination
+                      of ''ram-and-flash’'
+                    type: string
+                  name:
+                    description: A meaningful name to identify the subscription
+                    type: string
+                  paymentMethodID:
+                    description: A valid payment method pre-defined in the current
+                      account
+                    type: string
+                  persistentStorageEncryption:
+                    description: Encrypt data stored in persistent storage. Required
+                      for a GCP subscription
+                    type: boolean
+                  timeouts:
+                    properties:
+                      create:
+                        description: A Duration represents the elapsed time between
+                          two instants as an int64 nanosecond count. The representation
+                          limits the largest representable duration to approximately
+                          290 years.
+                        format: int64
+                        type: integer
+                      default:
+                        description: A Duration represents the elapsed time between
+                          two instants as an int64 nanosecond count. The representation
+                          limits the largest representable duration to approximately
+                          290 years.
+                        format: int64
+                        type: integer
+                      delete:
+                        description: A Duration represents the elapsed time between
+                          two instants as an int64 nanosecond count. The representation
+                          limits the largest representable duration to approximately
+                          290 years.
+                        format: int64
+                        type: integer
+                      read:
+                        description: A Duration represents the elapsed time between
+                          two instants as an int64 nanosecond count. The representation
+                          limits the largest representable duration to approximately
+                          290 years.
+                        format: int64
+                        type: integer
+                      update:
+                        description: A Duration represents the elapsed time between
+                          two instants as an int64 nanosecond count. The representation
+                          limits the largest representable duration to approximately
+                          290 years.
+                        format: int64
+                        type: integer
+                    type: object
+                required:
+                - cloudProvider
+                - database
+                type: object
+              secretRef:
+                description: LocalObjectReference contains enough information to let
+                  you locate the referenced object inside the same namespace.
+                properties:
+                  name:
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      TODO: Add other useful fields. apiVersion, kind, uid?'
+                    type: string
+                type: object
+              state:
+                properties:
+                  allowlist:
+                    description: An allowlist object
+                    properties:
+                      cidrs:
+                        description: Set of CIDR ranges that are allowed to access
+                          the databases associated with this subscription
+                        items:
+                          type: string
+                        type: array
+                      securityGroupIDS:
+                        description: Set of security groups that are allowed to access
+                          the databases associated with this subscription
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  cloudProvider:
+                    description: A cloud provider object
+                    properties:
+                      cloudAccountID:
+                        description: 'Cloud account identifier. Default: Redis Labs
+                          internal cloud account (using Cloud Account Id = 1 implies
+                          using Redis Labs internal cloud account). Note that a GCP
+                          subscription can be created only with Redis Labs internal
+                          cloud account'
+                        type: string
+                      provider:
+                        description: The cloud provider to use with the subscription,
+                          (either `AWS` or `GCP`)
+                        type: string
+                      region:
+                        description: Cloud networking details, per region (single
+                          region or multiple regions for Active-Active cluster only)
+                        items:
+                          properties:
+                            multipleAvailabilityZones:
+                              description: Support deployment on multiple availability
+                                zones within the selected region
+                              type: boolean
+                            networkingDeploymentCIDR:
+                              description: Deployment CIDR mask
+                              type: string
+                            networkingVpcID:
+                              description: Either an existing VPC Id (already exists
+                                in the specific region) or create a new VPC (if no
+                                VPC is specified)
+                              type: string
+                            networks:
+                              description: List of networks used
+                              items:
+                                properties:
+                                  networkingDeploymentCIDR:
+                                    description: Deployment CIDR mask
+                                    type: string
+                                  networkingSubnetID:
+                                    description: The subnet that the subscription
+                                      deploys into
+                                    type: string
+                                  networkingVpcID:
+                                    description: Either an existing VPC Id (already
+                                      exists in the specific region) or create a new
+                                      VPC (if no VPC is specified)
+                                    type: string
+                                type: object
+                              type: array
+                            preferredAvailabilityZones:
+                              description: List of availability zones used
+                              items:
+                                type: string
+                              type: array
+                            region:
+                              description: Deployment region as defined by cloud provider
+                              type: string
+                          required:
+                          - networkingDeploymentCIDR
+                          - preferredAvailabilityZones
+                          - region
+                          type: object
+                        minItems: 1
+                        type: array
+                    required:
+                    - region
+                    type: object
+                  database:
+                    description: A database object
+                    items:
+                      properties:
+                        alert:
+                          description: Set of alerts to enable on the database
+                          items:
+                            properties:
+                              name:
+                                description: Alert name
+                                type: string
+                              value:
+                                description: Alert value
+                                format: int64
+                                type: integer
+                            required:
+                            - name
+                            - value
+                            type: object
+                          type: array
+                        averageItemSizeInBytes:
+                          description: Relevant only to ram-and-flash clusters. Estimated
+                            average size (measured in bytes) of the items stored in
+                            the database
+                          format: int64
+                          type: integer
+                        clientSslCertificate:
+                          description: SSL certificate to authenticate user connections
+                          type: string
+                        dataPersistence:
+                          description: Rate of database data persistence (in persistent
+                            storage)
+                          type: string
+                        dbID:
+                          description: Identifier of the database created
+                          format: int64
+                          type: integer
+                        enableTls:
+                          description: Use TLS for authentication
+                          type: boolean
+                        externalEndpointForOssClusterAPI:
+                          description: Should use the external endpoint for open-source
+                            (OSS) Cluster API
+                          type: boolean
+                        hashingPolicy:
+                          description: List of regular expression rules to shard the
+                            database by. See the documentation on clustering for more
+                            information on the hashing policy - https://docs.redislabs.com/latest/rc/concepts/clustering/
+                          items:
+                            type: string
+                          type: array
+                        memoryLimitInGb:
+                          description: Maximum memory usage for this specific database
+                          format: double
+                          type: number
+                        module:
+                          description: A module object
+                          properties:
+                            name:
+                              description: Name of the module to enable
+                              type: string
+                          required:
+                          - name
+                          type: object
+                        name:
+                          description: A meaningful name to identify the database
+                          type: string
+                        periodicBackupPath:
+                          description: Path that will be used to store database backup
+                            files
+                          type: string
+                        privateEndpoint:
+                          description: Private endpoint to access the database
+                          type: string
+                        protocol:
+                          description: The protocol that will be used to access the
+                            database, (either ‘redis’ or 'memcached’)
+                          type: string
+                        publicEndpoint:
+                          description: Public endpoint to access the database
+                          type: string
+                        replicaOf:
+                          description: Set of Redis database URIs, in the format `redis://user:password@host:port`,
+                            that this database will be a replica of. If the URI provided
+                            is Redis Labs Cloud instance, only host and port should
+                            be provided
+                          items:
+                            type: string
+                          type: array
+                        replication:
+                          description: Databases replication
+                          type: boolean
+                        sourceIPS:
+                          description: Set of CIDR addresses to allow access to the
+                            database
+                          items:
+                            type: string
+                          minItems: 1
+                          type: array
+                        supportOssClusterAPI:
+                          description: Support Redis open-source (OSS) Cluster API
+                          type: boolean
+                        throughputMeasurementBy:
+                          description: Throughput measurement method, (either ‘number-of-shards’
+                            or ‘operations-per-second’)
+                          type: string
+                        throughputMeasurementValue:
+                          description: Throughput value (as applies to selected measurement
+                            method)
+                          format: int64
+                          type: integer
+                      required:
+                      - memoryLimitInGb
+                      - name
+                      - protocol
+                      - throughputMeasurementBy
+                      - throughputMeasurementValue
+                      type: object
+                    minItems: 1
+                    type: array
+                  id:
+                    type: string
+                  memoryStorage:
+                    description: 'Memory storage preference: either ‘ram’ or a combination
+                      of ''ram-and-flash’'
+                    type: string
+                  name:
+                    description: A meaningful name to identify the subscription
+                    type: string
+                  paymentMethodID:
+                    description: A valid payment method pre-defined in the current
+                      account
+                    type: string
+                  persistentStorageEncryption:
+                    description: Encrypt data stored in persistent storage. Required
+                      for a GCP subscription
+                    type: boolean
+                  timeouts:
+                    properties:
+                      create:
+                        description: A Duration represents the elapsed time between
+                          two instants as an int64 nanosecond count. The representation
+                          limits the largest representable duration to approximately
+                          290 years.
+                        format: int64
+                        type: integer
+                      default:
+                        description: A Duration represents the elapsed time between
+                          two instants as an int64 nanosecond count. The representation
+                          limits the largest representable duration to approximately
+                          290 years.
+                        format: int64
+                        type: integer
+                      delete:
+                        description: A Duration represents the elapsed time between
+                          two instants as an int64 nanosecond count. The representation
+                          limits the largest representable duration to approximately
+                          290 years.
+                        format: int64
+                        type: integer
+                      read:
+                        description: A Duration represents the elapsed time between
+                          two instants as an int64 nanosecond count. The representation
+                          limits the largest representable duration to approximately
+                          290 years.
+                        format: int64
+                        type: integer
+                      update:
+                        description: A Duration represents the elapsed time between
+                          two instants as an int64 nanosecond count. The representation
+                          limits the largest representable duration to approximately
+                          290 years.
+                        format: int64
+                        type: integer
+                    type: object
+                required:
+                - cloudProvider
+                - database
+                type: object
+              terminationPolicy:
+                enum:
+                - Delete
+                - DoNotTerminate
+                type: string
+              updatePolicy:
+                enum:
+                - Destroy
+                - DoNotDestroy
+                type: string
+            required:
+            - providerRef
+            - resource
+            type: object
+          status:
+            properties:
+              conditions:
+                items:
+                  properties:
+                    lastTransitionTime:
+                      description: Last time the condition transitioned from one status
+                        to another. This should be when the underlying condition changed.  If
+                        that is not known, then using the time when the API field
+                        changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: A human readable message indicating details about
+                        the transition. This field may be empty.
+                      type: string
+                    observedGeneration:
+                      description: If set, this represents the .metadata.generation
+                        that the condition was set based upon. For instance, if .metadata.generation
+                        is currently 12, but the .status.condition[x].observedGeneration
+                        is 9, the condition is out of date with respect to the current
+                        state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: The reason for the condition's last transition
+                        in CamelCase. The specific API may choose whether or not this
+                        field is considered a guaranteed API. This field may not be
+                        empty.
+                      type: string
+                    status:
+                      description: Status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
+                        Many .condition.type values are consistent across resources
+                        like Available, but because arbitrary conditions can be useful
+                        (see .node.status.conditions), the ability to deconflict is
+                        important.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              observedGeneration:
+                description: Resource generation, which is updated on mutation by
+                  the API Server.
+                format: int64
+                type: integer
+              phase:
+                description: Status defines the set of statuses a resource can have.
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

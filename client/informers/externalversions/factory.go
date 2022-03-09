@@ -24,8 +24,9 @@ import (
 	time "time"
 
 	versioned "kubeform.dev/provider-rediscloud-api/client/clientset/versioned"
+	cloud "kubeform.dev/provider-rediscloud-api/client/informers/externalversions/cloud"
 	internalinterfaces "kubeform.dev/provider-rediscloud-api/client/informers/externalversions/internalinterfaces"
-	rediscloud "kubeform.dev/provider-rediscloud-api/client/informers/externalversions/rediscloud"
+	subscription "kubeform.dev/provider-rediscloud-api/client/informers/externalversions/subscription"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -173,9 +174,14 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
-	Rediscloud() rediscloud.Interface
+	Cloud() cloud.Interface
+	Subscription() subscription.Interface
 }
 
-func (f *sharedInformerFactory) Rediscloud() rediscloud.Interface {
-	return rediscloud.New(f, f.namespace, f.tweakListOptions)
+func (f *sharedInformerFactory) Cloud() cloud.Interface {
+	return cloud.New(f, f.namespace, f.tweakListOptions)
+}
+
+func (f *sharedInformerFactory) Subscription() subscription.Interface {
+	return subscription.New(f, f.namespace, f.tweakListOptions)
 }
