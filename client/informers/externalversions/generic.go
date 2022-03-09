@@ -21,7 +21,8 @@ package externalversions
 import (
 	"fmt"
 
-	v1alpha1 "kubeform.dev/provider-rediscloud-api/apis/rediscloud/v1alpha1"
+	v1alpha1 "kubeform.dev/provider-rediscloud-api/apis/cloud/v1alpha1"
+	subscriptionv1alpha1 "kubeform.dev/provider-rediscloud-api/apis/subscription/v1alpha1"
 
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
@@ -53,13 +54,15 @@ func (f *genericInformer) Lister() cache.GenericLister {
 // TODO extend this to unknown resources with a client pool
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
-	// Group=rediscloud.rediscloud.kubeform.com, Version=v1alpha1
-	case v1alpha1.SchemeGroupVersion.WithResource("cloudaccounts"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Rediscloud().V1alpha1().CloudAccounts().Informer()}, nil
-	case v1alpha1.SchemeGroupVersion.WithResource("subscriptions"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Rediscloud().V1alpha1().Subscriptions().Informer()}, nil
-	case v1alpha1.SchemeGroupVersion.WithResource("subscriptionpeerings"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Rediscloud().V1alpha1().SubscriptionPeerings().Informer()}, nil
+	// Group=cloud.rediscloud.kubeform.com, Version=v1alpha1
+	case v1alpha1.SchemeGroupVersion.WithResource("accounts"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Cloud().V1alpha1().Accounts().Informer()}, nil
+
+		// Group=subscription.rediscloud.kubeform.com, Version=v1alpha1
+	case subscriptionv1alpha1.SchemeGroupVersion.WithResource("peerings"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Subscription().V1alpha1().Peerings().Informer()}, nil
+	case subscriptionv1alpha1.SchemeGroupVersion.WithResource("subscriptions"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Subscription().V1alpha1().Subscriptions().Informer()}, nil
 
 	}
 

@@ -20,8 +20,10 @@ package fake
 
 import (
 	clientset "kubeform.dev/provider-rediscloud-api/client/clientset/versioned"
-	rediscloudv1alpha1 "kubeform.dev/provider-rediscloud-api/client/clientset/versioned/typed/rediscloud/v1alpha1"
-	fakerediscloudv1alpha1 "kubeform.dev/provider-rediscloud-api/client/clientset/versioned/typed/rediscloud/v1alpha1/fake"
+	cloudv1alpha1 "kubeform.dev/provider-rediscloud-api/client/clientset/versioned/typed/cloud/v1alpha1"
+	fakecloudv1alpha1 "kubeform.dev/provider-rediscloud-api/client/clientset/versioned/typed/cloud/v1alpha1/fake"
+	subscriptionv1alpha1 "kubeform.dev/provider-rediscloud-api/client/clientset/versioned/typed/subscription/v1alpha1"
+	fakesubscriptionv1alpha1 "kubeform.dev/provider-rediscloud-api/client/clientset/versioned/typed/subscription/v1alpha1/fake"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
@@ -77,7 +79,12 @@ func (c *Clientset) Tracker() testing.ObjectTracker {
 
 var _ clientset.Interface = &Clientset{}
 
-// RediscloudV1alpha1 retrieves the RediscloudV1alpha1Client
-func (c *Clientset) RediscloudV1alpha1() rediscloudv1alpha1.RediscloudV1alpha1Interface {
-	return &fakerediscloudv1alpha1.FakeRediscloudV1alpha1{Fake: &c.Fake}
+// CloudV1alpha1 retrieves the CloudV1alpha1Client
+func (c *Clientset) CloudV1alpha1() cloudv1alpha1.CloudV1alpha1Interface {
+	return &fakecloudv1alpha1.FakeCloudV1alpha1{Fake: &c.Fake}
+}
+
+// SubscriptionV1alpha1 retrieves the SubscriptionV1alpha1Client
+func (c *Clientset) SubscriptionV1alpha1() subscriptionv1alpha1.SubscriptionV1alpha1Interface {
+	return &fakesubscriptionv1alpha1.FakeSubscriptionV1alpha1{Fake: &c.Fake}
 }

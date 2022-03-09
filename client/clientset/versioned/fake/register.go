@@ -19,7 +19,8 @@ limitations under the License.
 package fake
 
 import (
-	rediscloudv1alpha1 "kubeform.dev/provider-rediscloud-api/apis/rediscloud/v1alpha1"
+	cloudv1alpha1 "kubeform.dev/provider-rediscloud-api/apis/cloud/v1alpha1"
+	subscriptionv1alpha1 "kubeform.dev/provider-rediscloud-api/apis/subscription/v1alpha1"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -32,7 +33,8 @@ var scheme = runtime.NewScheme()
 var codecs = serializer.NewCodecFactory(scheme)
 
 var localSchemeBuilder = runtime.SchemeBuilder{
-	rediscloudv1alpha1.AddToScheme,
+	cloudv1alpha1.AddToScheme,
+	subscriptionv1alpha1.AddToScheme,
 }
 
 // AddToScheme adds all types of this clientset into the given scheme. This allows composition
